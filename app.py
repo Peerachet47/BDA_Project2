@@ -3,19 +3,19 @@
 # Peerachet Khanitson (ID: 6531501092)
 # Wisan Kittisaret (ID: 6531501197)
 
-import joblib
-import os
-
+# app.py
 import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
+from sklearn.cluster import KMeans
 from sklearn.preprocessing import StandardScaler
 
-st.title("Retail Customer Segmentation using Pretrained K-Means Model")
+st.title("Retail Customer Segmentation using K-Means")
 
 @st.cache_data
 def load_data():
-    df = pd.read_excel("Online Retail.xlsx")
+    url = "https://archive.ics.uci.edu/ml/machine-learning-databases/00352/Online%20Retail.xlsx"
+    df = pd.read_excel(url)
     df = df[(df['Quantity'] > 0) & (df['UnitPrice'] > 0)]
     df['TotalPrice'] = df['Quantity'] * df['UnitPrice']
     return df
@@ -35,14 +35,10 @@ customer_df.columns = ['CustomerID', 'NumPurchases', 'TotalQuantity', 'TotalSpen
 scaler = StandardScaler()
 X_scaled = scaler.fit_transform(customer_df.drop('CustomerID', axis=1))
 
-# Load pretrained model
-model_path = "model.pkl"
-if not os.path.exists(model_path):
-    st.error("❌ model.pkl not found. Please train the model first.")
-    st.stop()
-
-kmeans = joblib.load(model_path)
-customer_df['Cluster'] = kmeans.predict(X_scaled)
+# K-Means
+k = st.slider("Select number of clusters (K):", 2, 10, 4)
+kmeans = KMeans(n_clusters=k, random_state=42)
+customer_df['Cluster'] = kmeans.fit_predict(X_scaled)
 
 # Plot
 fig, ax = plt.subplots()
