@@ -3,17 +3,17 @@
 # Peerachet Khanitson (ID: 6531501092)
 # Wisan Kittisaret (ID: 6531501197)
 
-# app.py
 import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
-from sklearn.cluster import KMeans
+import pickle
 from sklearn.preprocessing import StandardScaler
+
 # Set Streamlit page configuration
 st.set_page_config(page_title="Segmentation K-Means App", layout="centered")
 
 # Title
-st.title("Customer Segmentation using K-Means")
+st.title("Customer Segmentation using Pretrained K-Means Model")
 
 @st.cache_data
 def load_data():
@@ -22,6 +22,11 @@ def load_data():
     df = df[(df['Quantity'] > 0) & (df['UnitPrice'] > 0)]
     df['TotalPrice'] = df['Quantity'] * df['UnitPrice']
     return df
+
+@st.cache_resource
+def load_model():
+    with open("kmeans_customer_model.pkl", "rb") as file:
+        return pickle.load(file)
 
 df = load_data()
 st.write("### Sample Data", df.head())
@@ -34,14 +39,13 @@ customer_df = df.groupby('CustomerID').agg({
 }).reset_index()
 customer_df.columns = ['CustomerID', 'NumPurchases', 'TotalQuantity', 'TotalSpent']
 
-# Normalize
+# Normalize (ต้องเหมือนกับที่ใช้ฝึกโมเดล)
 scaler = StandardScaler()
 X_scaled = scaler.fit_transform(customer_df.drop('CustomerID', axis=1))
 
-# K-Means
-k = st.slider("Select number of clusters (K):", 2, 10, 4)
-kmeans = KMeans(n_clusters=k, random_state=42)
-customer_df['Cluster'] = kmeans.fit_predict(X_scaled)
+# Load pretrained model
+kmeans = load_model()
+customer_df['Cluster'] = kmeans.predict(X_scaled)
 
 # Plot
 fig, ax = plt.subplots()
@@ -49,7 +53,7 @@ scatter = ax.scatter(customer_df['TotalQuantity'], customer_df['TotalSpent'],
                      c=customer_df['Cluster'], cmap='rainbow')
 plt.xlabel('Total Quantity')
 plt.ylabel('Total Spent')
-plt.title('Customer Segments')
+plt.title('Customer Segments (Pretrained Model)')
 st.pyplot(fig)
 
 st.write("### Clustered Data", customer_df.head())
