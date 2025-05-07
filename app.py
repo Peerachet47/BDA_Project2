@@ -1,28 +1,21 @@
-"""
-Created on Wed May 07 14:28:26 2025
-
-@author: peerachet
-"""
 # Group Members:
 # Chalermchai Nichee (ID: 6531501015)
 # Peerachet Khanitson (ID: 6531501092)
 # Wisan Kittisaret (ID: 6531501197)
 
+import joblib
+import os
+
 import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
-from sklearn.cluster import KMeans
 from sklearn.preprocessing import StandardScaler
 
-# Set Streamlit page configuration
-st.set_page_config(page_title="Customer Segmentation using K-Means App", layout="centered")
-
-st.title("Customer Segmentation using K-Means")
+st.title("Retail Customer Segmentation using Pretrained K-Means Model")
 
 @st.cache_data
 def load_data():
-    url = "https://archive.ics.uci.edu/ml/machine-learning-databases/00352/Online%20Retail.xlsx"
-    df = pd.read_excel(url)
+    df = pd.read_excel("Online Retail.xlsx")
     df = df[(df['Quantity'] > 0) & (df['UnitPrice'] > 0)]
     df['TotalPrice'] = df['Quantity'] * df['UnitPrice']
     return df
@@ -42,10 +35,14 @@ customer_df.columns = ['CustomerID', 'NumPurchases', 'TotalQuantity', 'TotalSpen
 scaler = StandardScaler()
 X_scaled = scaler.fit_transform(customer_df.drop('CustomerID', axis=1))
 
-# K-Means
-k = st.slider("Select number of clusters (K):", 2, 10, 4)
-kmeans = KMeans(n_clusters=k, random_state=42)
-customer_df['Cluster'] = kmeans.fit_predict(X_scaled)
+# Load pretrained model
+model_path = "k-mean_model.pkl"
+if not os.path.exists(model_path):
+    st.error("❌ k-mean_model.pkl not found. Please train the model first.")
+    st.stop()
+
+kmeans = joblib.load(model_path)
+customer_df['Cluster'] = kmeans.predict(X_scaled)
 
 # Plot
 fig, ax = plt.subplots()
