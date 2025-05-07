@@ -1,10 +1,15 @@
+# Group Members:
+# Chalermchai Nichee (ID: 6531501015)
+# Peerachet Khanitson (ID: 6531501092)
+# Wisan Kittisaret (ID: 6531501197)
+
 import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
 from sklearn.cluster import KMeans
 from sklearn.preprocessing import StandardScaler
 
-st.set_page_config(page_title="Customer Segmentation", layout="wide")
+st.set_page_config(page_title="Customer Segmentation", layout="centered")
 st.title("🧠 Customer Segmentation (Online Dataset)")
 
 # Load data from online
