@@ -3,16 +3,18 @@
 # Peerachet Khanitson (ID: 6531501092)
 # Wisan Kittisaret (ID: 6531501197)
 
+# app.py
 import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
 from sklearn.cluster import KMeans
 from sklearn.preprocessing import StandardScaler
+# Set Streamlit page configuration
+st.set_page_config(page_title="Segmentation K-Means App", layout="centered")
 
-st.set_page_config(page_title="Customer Segmentation", layout="centered")
-st.title("🧠 Customer Segmentation (Online Dataset)")
+# Title
+st.title("Customer Segmentation using K-Means")
 
-# Load data from online
 @st.cache_data
 def load_data():
     url = "https://archive.ics.uci.edu/ml/machine-learning-databases/00352/Online%20Retail.xlsx"
@@ -22,8 +24,9 @@ def load_data():
     return df
 
 df = load_data()
+st.write("### Sample Data", df.head())
 
-# Preprocessing
+# Aggregate by customer
 customer_df = df.groupby('CustomerID').agg({
     'InvoiceNo': 'nunique',
     'Quantity': 'sum',
@@ -31,12 +34,12 @@ customer_df = df.groupby('CustomerID').agg({
 }).reset_index()
 customer_df.columns = ['CustomerID', 'NumPurchases', 'TotalQuantity', 'TotalSpent']
 
-# Scale
+# Normalize
 scaler = StandardScaler()
 X_scaled = scaler.fit_transform(customer_df.drop('CustomerID', axis=1))
 
-# KMeans
-k = st.slider("Number of clusters", 2, 10, 4)
+# K-Means
+k = st.slider("Select number of clusters (K):", 2, 10, 4)
 kmeans = KMeans(n_clusters=k, random_state=42)
 customer_df['Cluster'] = kmeans.fit_predict(X_scaled)
 
@@ -44,9 +47,9 @@ customer_df['Cluster'] = kmeans.fit_predict(X_scaled)
 fig, ax = plt.subplots()
 scatter = ax.scatter(customer_df['TotalQuantity'], customer_df['TotalSpent'],
                      c=customer_df['Cluster'], cmap='rainbow')
-ax.set_xlabel('Total Quantity')
-ax.set_ylabel('Total Spent')
-ax.set_title('Customer Segments')
+plt.xlabel('Total Quantity')
+plt.ylabel('Total Spent')
+plt.title('Customer Segments')
 st.pyplot(fig)
 
 st.write("### Clustered Data", customer_df.head())
