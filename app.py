@@ -7,15 +7,13 @@
 import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
-import joblib
-import os
+from sklearn.cluster import KMeans
 from sklearn.preprocessing import StandardScaler
-
 # Set Streamlit page configuration
 st.set_page_config(page_title="Segmentation K-Means App", layout="centered")
 
 # Title
-st.title("Customer Segmentation using Pretrained K-Means")
+st.title("Customer Segmentation using K-Means")
 
 @st.cache_data
 def load_data():
@@ -40,26 +38,15 @@ customer_df.columns = ['CustomerID', 'NumPurchases', 'TotalQuantity', 'TotalSpen
 scaler = StandardScaler()
 X_scaled = scaler.fit_transform(customer_df.drop('CustomerID', axis=1))
 
-# Load pretrained K-Means model
-model_path = "k-mean_model.pkl"
-if not os.path.exists(model_path):
-    st.error("❌ k-mean_model.pkl not found. Please upload it.")
-    st.stop()
-
-kmeans = joblib.load(model_path)
-customer_df['Cluster'] = kmeans.predict(X_scaled)
+# K-Means
+k = st.slider("Select number of clusters (K):", 2, 10, 4)
+kmeans = KMeans(n_clusters=k, random_state=42)
+customer_df['Cluster'] = kmeans.fit_predict(X_scaled)
 
 # Plot
 fig, ax = plt.subplots()
 scatter = ax.scatter(customer_df['TotalQuantity'], customer_df['TotalSpent'],
                      c=customer_df['Cluster'], cmap='rainbow')
-
-# Add legend text at the center of each cluster
-for cluster_id in sorted(customer_df['Cluster'].unique()):
-    cx = customer_df[customer_df['Cluster'] == cluster_id]['TotalQuantity'].mean()
-    cy = customer_df[customer_df['Cluster'] == cluster_id]['TotalSpent'].mean()
-    ax.text(cx, cy, f"Cluster {cluster_id}", fontsize=9, weight='bold')
-
 plt.xlabel('Total Quantity')
 plt.ylabel('Total Spent')
 plt.title('Customer Segments')
