@@ -9,7 +9,10 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from sklearn.cluster import KMeans
 from sklearn.preprocessing import StandardScaler
+# Set Streamlit page configuration
+st.set_page_config(page_title="Segmentation K-Means App", layout="centered")
 
+# Title
 st.title("Customer Segmentation using K-Means")
 
 @st.cache_data
