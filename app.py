@@ -1,3 +1,12 @@
+"""
+Created on Wed May 07 14:28:26 2025
+
+@author: peerachet
+"""
+# Group Members:
+# Chalermchai Nichee (ID: 6531501015)
+# Peerachet Khanitson (ID: 6531501092)
+# Wisan Kittisaret (ID: 6531501197)
 
 import streamlit as st
 import pandas as pd
