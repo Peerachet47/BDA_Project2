@@ -1,55 +1,41 @@
-# Group Members:
-# Chalermchai Nichee (ID: 6531501015)
-# Peerachet Khanitson (ID: 6531501092)
-# Wisan Kittisaret (ID: 6531501197)
-
 # app.py
+
 import streamlit as st
 import pandas as pd
+import pickle
 import matplotlib.pyplot as plt
-from sklearn.cluster import KMeans
-from sklearn.preprocessing import StandardScaler
-# Set Streamlit page configuration
-st.set_page_config(page_title="Segmentation K-Means App", layout="centered")
 
-# Title
-st.title("Customer Segmentation using K-Means")
+st.title("🧠 Customer Segmentation using KMeans")
 
+# Load data
 @st.cache_data
 def load_data():
-    url = "https://archive.ics.uci.edu/ml/machine-learning-databases/00352/Online%20Retail.xlsx"
-    df = pd.read_excel(url)
-    df = df[(df['Quantity'] > 0) & (df['UnitPrice'] > 0)]
-    df['TotalPrice'] = df['Quantity'] * df['UnitPrice']
-    return df
+    return pd.read_csv("clustered_customers.csv")
+
+# Load model
+@st.cache_resource
+def load_model():
+    with open("kmeans_customer_model.pkl", "rb") as file:
+        return pickle.load(file)
 
 df = load_data()
-st.write("### Sample Data", df.head())
+kmeans_model = load_model()
 
-# Aggregate by customer
-customer_df = df.groupby('CustomerID').agg({
-    'InvoiceNo': 'nunique',
-    'Quantity': 'sum',
-    'TotalPrice': 'sum'
-}).reset_index()
-customer_df.columns = ['CustomerID', 'NumPurchases', 'TotalQuantity', 'TotalSpent']
+# Sidebar - Cluster filter
+clusters = sorted(df["Cluster"].unique())
+selected_cluster = st.sidebar.selectbox("Select Cluster", clusters)
 
-# Normalize
-scaler = StandardScaler()
-X_scaled = scaler.fit_transform(customer_df.drop('CustomerID', axis=1))
+filtered = df[df["Cluster"] == selected_cluster]
 
-# K-Means
-k = st.slider("Select number of clusters (K):", 2, 10, 4)
-kmeans = KMeans(n_clusters=k, random_state=42)
-customer_df['Cluster'] = kmeans.fit_predict(X_scaled)
+st.subheader(f"📊 Cluster {selected_cluster} Summary")
+st.write(filtered.describe())
 
-# Plot
+# Scatter plot (PCA1 vs PCA2)
+st.subheader("🗺 PCA Scatter Plot of All Clusters")
 fig, ax = plt.subplots()
-scatter = ax.scatter(customer_df['TotalQuantity'], customer_df['TotalSpent'],
-                     c=customer_df['Cluster'], cmap='rainbow')
-plt.xlabel('Total Quantity')
-plt.ylabel('Total Spent')
-plt.title('Customer Segments')
+scatter = ax.scatter(df["PCA1"], df["PCA2"], c=df["Cluster"], cmap="viridis", alpha=0.6)
+ax.set_xlabel("PCA1")
+ax.set_ylabel("PCA2")
+ax.set_title("Customer Clusters by PCA")
+plt.colorbar(scatter, ax=ax, label="Cluster")
 st.pyplot(fig)
-
-st.write("### Clustered Data", customer_df.head())
