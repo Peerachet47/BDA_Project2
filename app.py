@@ -38,7 +38,7 @@ X_scaled = scaler.fit_transform(customer_df.drop('CustomerID', axis=1))
 # Load pretrained model
 model_path = "k-mean_model.pkl"
 if not os.path.exists(model_path):
-    st.error("k-mean_model.pkl not found. Please train the model first.")
+    st.error("❌ k-mean_model.pkl not found. Please train the model first.")
     st.stop()
 
 kmeans = joblib.load(model_path)
@@ -48,13 +48,6 @@ customer_df['Cluster'] = kmeans.predict(X_scaled)
 fig, ax = plt.subplots()
 scatter = ax.scatter(customer_df['TotalQuantity'], customer_df['TotalSpent'],
                      c=customer_df['Cluster'], cmap='rainbow')
-
-# Add legend for clusters
-for cluster_id in sorted(customer_df['Cluster'].unique()):
-    cx = customer_df[customer_df['Cluster'] == cluster_id]['TotalQuantity'].mean()
-    cy = customer_df[customer_df['Cluster'] == cluster_id]['TotalSpent'].mean()
-    ax.text(cx, cy, f"Cluster {cluster_id}", fontsize=9, weight='bold')
-
 plt.xlabel('Total Quantity')
 plt.ylabel('Total Spent')
 plt.title('Customer Segments')
