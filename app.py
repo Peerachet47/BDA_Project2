@@ -36,9 +36,9 @@ scaler = StandardScaler()
 X_scaled = scaler.fit_transform(customer_df.drop('CustomerID', axis=1))
 
 # Load pretrained model
-model_path = "k-mean_model.pkl"
+model_path = "model.pkl"
 if not os.path.exists(model_path):
-    st.error("❌ k-mean_model.pkl not found. Please train the model first.")
+    st.error("❌ model.pkl not found. Please train the model first.")
     st.stop()
 
 kmeans = joblib.load(model_path)
