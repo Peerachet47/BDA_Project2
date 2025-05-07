@@ -10,7 +10,7 @@ import matplotlib.pyplot as plt
 from sklearn.cluster import KMeans
 from sklearn.preprocessing import StandardScaler
 
-st.title("Retail Customer Segmentation using K-Means")
+st.title("Customer Segmentation using K-Means")
 
 @st.cache_data
 def load_data():
