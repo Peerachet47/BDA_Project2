@@ -13,7 +13,7 @@ st.title("🧠 Customer Segmentation with KMeans and PCA")
 # Load data
 @st.cache_data
 def load_data():
-    return pd.read_csv("clustered_customers.csv")
+    return pd.read_csv("data/clustered_customers.csv")
 
 # Load pretrained KMeans model
 @st.cache_resource
