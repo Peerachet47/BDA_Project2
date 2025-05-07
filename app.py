@@ -2,8 +2,6 @@
 # Chalermchai Nichee (ID: 6531501015)
 # Peerachet Khanitson (ID: 6531501092)
 # Wisan Kittisaret (ID: 6531501197)
-
-# app.py
 import streamlit as st
 import pickle
 import matplotlib.pyplot as plt
@@ -50,6 +48,3 @@ st.pyplot(fig)
 # Optional note if the model has more than 2 features
 if n_features > 2:
     st.warning(f"Note: Your model was trained on {n_features} features. Only the first 2 features are visualized here.")
-st.pyplot(fig)
-
-st.write("### Clustered Data", customer_df.head())
